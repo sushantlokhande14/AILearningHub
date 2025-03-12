@@ -329,7 +329,7 @@ def get_google_scholar_papers(query="artificial intelligence", max_results=5):
 @app.route('/research_papers')
 def research_papers():
     search_query = request.args.get("search", "AI")
-    source = request.args.get("source", "gs")  # default "gs" for Google Scholar
+    source = request.args.get("source", "arxiv")  # default to "arxiv" instead of "gs"
     page = int(request.args.get("page", 1))
     max_results = 10
 
@@ -353,13 +353,13 @@ def research_papers():
         if source == "pwc":
             total_count = pwc_total
 
-    if source in ["gs", "google", "all"]:
+    # Optionally, include google scholar only if source is explicitly set:
+    if source in ["gs", "google"]:
         gs_papers, gs_total = get_google_scholar_papers(query=search_query, max_results=max_results)
         for paper in gs_papers:
             paper["source"] = "google"
         papers.extend(gs_papers)
-        if source in ["gs", "google"]:
-            total_count = gs_total
+        total_count = gs_total
 
     if source == "all":
         total_count = len(papers)
@@ -371,6 +371,7 @@ def research_papers():
                            page=page,
                            max_results=max_results,
                            total_count=total_count)
+
 
 @app.route('/save_paper', methods=['POST'])
 @login_required
