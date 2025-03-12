@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1 class="mt-4">Hello, {{ username }}!</h1>
+  <p>Welcome to your dashboard.</p>
+  <hr>
+  <a href="{{ url_for('saved_content') }}" class="btn btn-primary">View Saved Content</a>
+</div>
+{% endblock %}

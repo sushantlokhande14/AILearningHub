@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Pending Peer Articles</h2>
+  <div class="row">
+    {% for article in articles %}
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ article.title }}</h5>
+          <p class="card-text">{{ article.description }}</p>
+          <p><small>Keywords: {{ article.keywords }}</small></p>
+          <p><small>Submitted by: {{ article.name }}</small></p>
+          <p><small>Contact: {{ article.contact }} | Email: {{ article.email }}</small></p>
+        </div>
+        <div class="card-footer">
+          <form method="POST" action="{{ url_for('approve_article', article_id=article.id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-outline-success">Approve</button>
+          </form>
+          <form method="POST" action="{{ url_for('reject_article', article_id=article.id) }}" style="display:inline; margin-left: 5px;">
+            <input type="text" name="admin_note" placeholder="Rejection note" class="form-control d-inline" style="width: auto;">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+      <div class="col-12">
+        <p>No pending articles.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+

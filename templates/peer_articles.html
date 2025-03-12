@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Peer Articles</h2>
+  <div class="row">
+    {% for article in articles %}
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title text-primary">{{ article.title }}</h5>
+          <p class="card-text">{{ article.description }}</p>
+          <p><small>Keywords: {{ article.keywords }}</small></p>
+          <p><small>Submitted by: {{ article.name }}</small></p>
+        </div>
+        <div class="card-footer">
+          <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Read Article</a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+      <div class="col-12">
+        <p>No peer articles available.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

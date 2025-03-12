@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Saved Content</h2>
+  <div class="mb-3">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" class="form-control w-auto d-inline" onchange="handleSortChange(this)">
+      <option value="recent" {% if sort_order == 'recent' %}selected{% endif %}>Recently Saved</option>
+      <option value="old" {% if sort_order == 'old' %}selected{% endif %}>Least Recently Saved</option>
+    </select>
+   {% if tab == 'courses' %}
+    <label for="courseStatusSelect" class="ml-3">Course Status:</label>
+    <select id="courseStatusSelect" class="form-control w-auto d-inline" onchange="handleCourseStatusChange(this)">
+      <option value="all" {% if course_status_filter == 'all' %}selected{% endif %}>All</option>
+      <option value="ongoing" {% if course_status_filter == 'ongoing' %}selected{% endif %}>Ongoing</option>
+      <option value="completed" {% if course_status_filter == 'completed' %}selected{% endif %}>Completed</option>
+    </select>
+  {% endif %}
+  </div>
+
+  <!-- Nav Tabs -->
+  <ul class="nav nav-tabs" id="savedContentTabs" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'repos' %}active{% endif %}"
+       href="{{ url_for('saved_content', tab='repos', sort=sort_order, course_status=course_status_filter) }}">
+      Repositories
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'papers' %}active{% endif %}"
+       href="{{ url_for('saved_content', tab='papers', sort=sort_order, course_status=course_status_filter) }}">
+      Papers
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'courses' %}active{% endif %}"
+       href="{{ url_for('saved_content', tab='courses', sort=sort_order, course_status=course_status_filter) }}">
+      Courses
+    </a>
+  </li>
+</ul>
+
+  <!-- Tab Panes -->
+  <div class="tab-content mt-3" id="savedContentTabsContent">
+    <!-- Repositories Tab -->
+    <div class="tab-pane fade {% if tab == 'repos' %}show active{% endif %}" id="repos" role="tabpanel" aria-labelledby="repos-tab">
+      <div class="row">
+        {% if repos %}
+          {% for repo in repos %}
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{ repo.title }}</h5>
+                <p class="card-text">
+                  <a href="{{ repo.url }}" target="_blank">{{ repo.url }}</a>
+                </p>
+              </div>
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">Saved on {{ repo.date_saved }}</small>
+                <form action="{{ url_for('unsave_item', item_id=repo.id) }}" method="POST" class="mb-0">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Unsave</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12">
+            <p>No saved repositories.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Papers Tab -->
+    <div class="tab-pane fade {% if tab == 'papers' %}show active{% endif %}" id="papers" role="tabpanel" aria-labelledby="papers-tab">
+      <div class="row">
+        {% if papers %}
+          {% for paper in papers %}
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{ paper.title }}</h5>
+                <p class="card-text">
+                  <a href="{{ paper.url }}" target="_blank">{{ paper.url }}</a>
+                </p>
+                <p>
+                  <small>Published: {{ paper.published }}</small><br>
+                  <small>Authors: {{ paper.authors }}</small><br>
+                  <small>Journal/Conf: {{ paper.journal_ref }}</small>
+                </p>
+              </div>
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">Saved on {{ paper.date_saved }}</small>
+                <form action="{{ url_for('unsave_item', item_id=paper.id) }}" method="POST" class="mb-0">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Unsave</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12">
+            <p>No saved papers.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  <!-- Courses Tab -->
+<div class="tab-pane fade {% if tab == 'courses' %}show active{% endif %}" id="courses" role="tabpanel" aria-labelledby="courses-tab">
+  <div class="row">
+    {% if courses %}
+      {% for course in courses %}
+      <div class="col-md-6 mb-4">
+        <div class="card h-100" style="border-radius: 8px;">
+          <div class="card-body">
+            <!-- Larger, bolder course title -->
+            <h4 class="card-title course-title">{{ course.title }}</h4>
+<p class="card-text course-text">
+  <a href="{{ course.url }}" target="_blank"> {{ course.url }} </a>
+</p>
+<p class="card-text course-text">
+  {{ course.published }}
+</p>
+<small class="small-text-muted">
+  Saved on {{ course.date_saved }}
+</small>
+            
+            <!-- Show course status in bigger text + a colored badge if you like -->
+            <p class="card-text" style="font-size: 1.1rem;">
+              <strong>Status:</strong>
+              {% if course.course_status %}
+                <span class="badge 
+                  {% if course.course_status == 'completed' %}badge-success
+                  {% elif course.course_status == 'ongoing' %}badge-warning
+                  {% else %}badge-secondary
+                  {% endif %}"
+                  style="font-size: 1rem;">
+                  {{ course.course_status|capitalize }}
+                </span>
+              {% else %}
+                N/A
+              {% endif %}
+            </p>
+          </div>
+          
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted" style="font-size: 0.9rem;">
+              Saved on {{ course.date_saved }}
+            </small>
+            
+            <!-- If not completed, show Mark Complete -->
+            {% if course.course_status != 'completed' %}
+            <form action="{{ url_for('mark_complete', item_id=course.id) }}" method="POST" class="mb-0">
+              <button type="submit" class="btn btn-sm btn-outline-success">Mark Complete</button>
+            </form>
+            {% endif %}
+            
+            <!-- Unsave button -->
+            <form action="{{ url_for('unsave_item', item_id=course.id) }}" method="POST" class="mb-0 ml-2">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Unsave</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <p>No saved courses.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+<script>
+function handleCourseStatusChange(select) {
+  var status = select.value;
+  var currentUrl = new URL(window.location.href);
+  // Keep the same 'tab' and 'sort' but change 'course_status'
+  currentUrl.searchParams.set('tab', 'courses');
+  currentUrl.searchParams.set('course_status', status);
+  window.location = currentUrl.toString();
+}
+</script>
+
+
+
+<script>
+function handleSortChange(selectElement) {
+  var sortValue = selectElement.value;
+  var currentTab = "{{ tab }}";
+  window.location.href = "{{ url_for('saved_content') }}" + "?sort=" + sortValue + "&tab=" + currentTab;
+}
+</script>
+{% endblock %}

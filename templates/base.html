@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Learning Hub</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="{{ url_for('index') }}">AI Hub</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('user_dashboard') }}">Dashboard</a>
+  </li>
+
+
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+  <a class="nav-link" href="{{ url_for('peer_articles') }}">Articles</a>
+</li>
+{% if current_user.is_authenticated %}
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('submit_article') }}">Submit Article</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('my_articles') }}">My Submissions</a>
+  </li>
+  {% if current_user.role == 'admin' %}
+<li class="nav-item admin-highlight">
+  <a class="nav-link" href="{{ url_for('admin_articles') }}">Review Peer Articles</a>
+</li>
+  {% endif %}
+{% endif %}
+
+  
+  <li class="nav-item">
+    <li class="nav-item">
+  <a class="nav-link" href="{{ url_for('courses') }}">Courses Library</a>
+</li>
+    <a class="nav-link" href="{{ url_for('github_repos') }}">GitHub Repos</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('research_papers') }}">Research Papers</a>
+  </li>
+  <li class="nav-item">
+     <li class="nav-item">
+  <a class="nav-link" href="{{ url_for('chat') }}">AI Chatbot</a>
+</li>
+    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+  </li>
+  {% else %}
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+  </li>
+
+  {% endif %}
+</ul>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container mt-5 pt-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+
+
+
+
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Chat box styling with background image */
+  #chat-box {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: transparent; /* Remove solid color */
+    position: relative;            /* Required for pseudo-element positioning */
+  }
+  /* Pseudo-element for background image */
+  #chat-box::before {
+    content: "";
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0;
+    background: url("{{ url_for('static', filename='images/chat_bg.jpg') }}") no-repeat center center;
+    background-size: cover;
+    opacity: 0.2;    /* Adjust opacity as needed */
+    z-index: -1;     /* Place behind chat messages */
+  }
+  
+  /* Container for each message using Flexbox */
+  .message-container {
+    display: flex;
+    margin: 10px 0;
+  }
+  /* Bot message styled to align left */
+  .bot-message {
+    background-color: #e2e3e5; /* Light gray */
+    padding: 10px;
+    border-radius: 15px;
+    max-width: 70%;
+    margin-right: auto; /* Align to left */
+  }
+  /* User message styled to align right */
+  .user-message {
+    background-color: #d1e7dd; /* Light green */
+    padding: 10px;
+    border-radius: 15px;
+    max-width: 70%;
+    margin-left: auto; /* Align to right */
+  }
+</style>
+
+<div class="container">
+  <h2 class="mt-4">Chat with Our Bot</h2>
+  <div id="chat-box"></div>
+  <form id="chat-form">
+    <div class="form-group">
+      <input type="text" class="form-control" id="user-input" placeholder="Type your message...">
+    </div>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const inputField = document.getElementById('user-input');
+    const message = inputField.value;
+    if (message.trim() === '') return;
+    
+    const chatBox = document.getElementById('chat-box');
+    
+    // Create container for the user's message and add styling
+    const userContainer = document.createElement('div');
+    userContainer.classList.add('message-container');
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.classList.add('user-message');
+    userMessageDiv.textContent = message;
+    userContainer.appendChild(userMessageDiv);
+    chatBox.appendChild(userContainer);
+    
+    // Clear the input field
+    inputField.value = '';
+    
+    // Send the message to the backend
+    fetch('/chat/api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Create container for the bot's reply and add styling
+      const botContainer = document.createElement('div');
+      botContainer.classList.add('message-container');
+      const botMessageDiv = document.createElement('div');
+      botMessageDiv.classList.add('bot-message');
+      botMessageDiv.textContent = data.reply;
+      botContainer.appendChild(botMessageDiv);
+      chatBox.appendChild(botContainer);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
+</script>
+{% endblock %}

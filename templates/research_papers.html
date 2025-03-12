@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Research Papers in AI</h2>
+  <!-- Search & Source Selection Form -->
+  <form method="GET" action="{{ url_for('research_papers') }}" class="form-inline mb-4">
+      <div class="form-group mr-2">
+         <input type="text" name="search" placeholder="Search papers" value="{{ search_query }}" class="form-control">
+      </div>
+      <div class="form-group mr-2">
+         <select name="source" class="form-control">
+            <option value="arxiv" {% if source=='arxiv' %}selected{% endif %}>arXiv</option>
+            <option value="pwc" {% if source=='pwc' %}selected{% endif %}>Papers With Code</option>
+            <!-- New Google Scholar option -->
+            <option value="gs" {% if source=='gs' or source=='google' %}selected{% endif %}>Google Scholar</option>
+            <option value="all" {% if source=='all' %}selected{% endif %}>All</option>
+         </select>
+      </div>
+      <input type="hidden" name="page" value="1">
+      <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+  
+  <!-- Papers List -->
+  <div class="row">
+    {% for paper in papers %}
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+         <div class="card-body d-flex flex-column">
+           <h5 class="card-title text-primary">{{ paper.title }}</h5>
+           <p>
+             <small class="text-muted">
+                Published: {{ paper.published }} 
+                {% if paper.journal_ref and paper.journal_ref != "N/A" %}
+                  | Journal/Conf: {{ paper.journal_ref }}
+                {% endif %}
+                | Authors: {{ paper.authors }}
+             </small>
+           </p>
+           <p class="card-text text-muted">
+             {% if paper.summary and paper.summary|length > 150 %}
+                <span class="short-desc">{{ paper.summary[:150] }}...</span>
+                <span class="full-desc d-none">{{ paper.summary }}</span>
+                <a href="#" class="read-more">Read More</a>
+             {% else %}
+                {{ paper.summary }}
+             {% endif %}
+           </p>
+         </div>
+         <div class="card-footer d-flex justify-content-between align-items-center">
+           <a href="{{ paper.link }}" target="_blank" class="btn btn-sm btn-outline-primary">View Paper</a>
+           {% if current_user.is_authenticated %}
+           <form action="{{ url_for('save_paper') }}" method="POST" style="display:inline;">
+             <input type="hidden" name="title" value="{{ paper.title }}">
+             <input type="hidden" name="url" value="{{ paper.link }}">
+             <input type="hidden" name="published" value="{{ paper.published }}">
+             <input type="hidden" name="authors" value="{{ paper.authors }}">
+             <input type="hidden" name="journal_ref" value="{{ paper.journal_ref }}">
+             <button type="submit" class="btn btn-sm btn-outline-success">Save</button>
+           </form>
+           {% endif %}
+         </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <p>No papers found.</p>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Pagination (for single-source searches) -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if source != 'all' %}
+        {% if page > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('research_papers', search=search_query, source=source, page=page-1) }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Previous</span>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ page }}</span>
+        </li>
+
+        {% set start_index = (page - 1) * max_results %}
+        {% if start_index + max_results < total_count %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('research_papers', search=search_query, source=source, page=page+1) }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Next</span>
+        </li>
+        {% endif %}
+      {% else %}
+        <!-- If 'all' is selected, you might hide pagination or handle it differently. -->
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+
+<!-- Read More Script -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var readMoreLinks = document.querySelectorAll('.read-more');
+  readMoreLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var parent = this.parentElement;
+      var shortDesc = parent.querySelector('.short-desc');
+      var fullDesc = parent.querySelector('.full-desc');
+      if (fullDesc.classList.contains('d-none')) {
+        fullDesc.classList.remove('d-none');
+        shortDesc.classList.add('d-none');
+        this.textContent = "Show Less";
+      } else {
+        fullDesc.classList.add('d-none');
+        shortDesc.classList.remove('d-none');
+        this.textContent = "Read More";
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
