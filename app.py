@@ -256,7 +256,7 @@ try:
 except ImportError:
     from urllib import quote_plus
 
-def get_arxiv_papers(query="artificial intelligence", max_results=10, start=0):
+def get_arxiv_papers(query="artificial intelligence", max_results=5, start=0):
     base_url = "http://export.arxiv.org/api/query?"
     safe_q = quote_plus(query)
     query_params = f"search_query=all:{safe_q}&start={start}&max_results={max_results}"
@@ -276,7 +276,7 @@ def get_arxiv_papers(query="artificial intelligence", max_results=10, start=0):
         papers.append(paper)
     return papers, total_results
 
-def get_paperswithcode_papers(query="artificial intelligence", page_size=10):
+def get_paperswithcode_papers(query="artificial intelligence", page_size=5):
     url = "https://paperswithcode.com/api/v1/papers/"
     params = {
         "q": query,
@@ -302,7 +302,7 @@ def get_paperswithcode_papers(query="artificial intelligence", page_size=10):
         print("Error fetching Papers With Code:", response.status_code)
     return papers, total_results
 
-def get_google_scholar_papers(query="artificial intelligence", max_results=10):
+def get_google_scholar_papers(query="artificial intelligence", max_results=5):
     try:
         from scholarly import scholarly
     except ImportError:
